@@ -2,10 +2,8 @@ package com.example.test_management_api.model;
 
 
 import com.example.test_management_api.model.enums.TestRunStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,4 +27,12 @@ public class TestRun {
     private LocalDateTime endTime;
 
     private String reportUrl;
+
+    private String errorMessage;
+
+    @Lob
+    private String errorDetails;
+
+    @JsonProperty
+    private Integer failedTestCount;
 }

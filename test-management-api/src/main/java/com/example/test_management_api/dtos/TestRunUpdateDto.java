@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TestRunUpdateDto {
 
+
     private TestRunStatus status;
     private String reportUrl;
-
+    private String errorMessage;
+    private String errorDetails;
+    private Integer failedTestCount;
 }
