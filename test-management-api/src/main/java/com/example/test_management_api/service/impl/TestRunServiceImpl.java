@@ -1,12 +1,15 @@
 package com.example.test_management_api.service.impl;
 
 
+import com.example.test_management_api.dtos.TestRunUpdateDto;
 import com.example.test_management_api.model.TestRun;
 import com.example.test_management_api.repository.TestRunRepository;
 import com.example.test_management_api.service.TestRunService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +25,16 @@ public class TestRunServiceImpl implements TestRunService {
 
     public Optional<TestRun> findTestRun(UUID id){
         return testRunRepository.findById(id);
+    }
+
+    public TestRun updateTestRunStatus(UUID id, TestRunUpdateDto updateDto) {
+
+        TestRun existingTestRun = testRunRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Test run with ID " + id + " not found to update!"));
+        existingTestRun.setStatus(updateDto.getStatus());
+        existingTestRun.setEndTime(LocalDateTime.now());
+        existingTestRun.setReportUrl(updateDto.getReportUrl());
+        return testRunRepository.save(existingTestRun);
     }
 
     @Override

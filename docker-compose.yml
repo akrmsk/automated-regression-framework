@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -9,3 +8,17 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 30s
+      timeout: 10s
+
+      retries: 5
+
+  api:
+    build: ./test-management-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
