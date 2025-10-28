@@ -28,11 +28,15 @@ public class TestRun {
 
     private String reportUrl;
 
+    private String environment;
+
+    private String tags;
+
     private String errorMessage;
 
     @Lob
     private String errorDetails;
 
-    @JsonProperty
+    @JsonProperty("failedTestCount")
     private Integer failedTestCount;
 }

@@ -3,8 +3,8 @@ services:
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"   # Port for application connection
+      - "15672:15672" # Port for the management UI
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
@@ -12,13 +12,44 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
       interval: 30s
       timeout: 10s
-
       retries: 5
 
-  api:
-    build: ./test-management-api
+  db:
+    image: mysql:8.0
+    hostname: mysql              # Service name for internal Docker network communication
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword      # Password for the administrative 'root' user
+      MYSQL_DATABASE: test_management_db # Name of the database to create automatically
+      MYSQL_USER: api_user             # Username for your Spring Boot application
+      MYSQL_PASSWORD: apipassword        # Password for your Spring Boot application user
     ports:
-      - "8080:8080"
-    depends_on:
+      - "3306:3306"                # Map container's MySQL port to your host machine's port
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persist database data using a named volume
+
+  api:
+    build: ./test-management-api  # Specifies the directory containing the Dockerfile for the API
+    ports:
+      - "8080:8080"              # Map container's port 8080 to your host machine's port 8080
+    depends_on:                  # Define startup dependencies
       rabbitmq:
-        condition: service_healthy
+        condition: service_healthy # Wait for RabbitMQ to be fully ready
+      db:
+        condition: service_started # Wait for the MySQL container to start (basic check)
+    volumes:                     # Mount local code for live reload (development only)
+      - ./test-management-api/src:/app/src
+      - ./test-management-api/target:/app/target
+    environment:                 # Pass database connection details as environment variables
+      # Database connection using the service name 'db' as hostname
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/test_management_db
+      SPRING_DATASOURCE_USERNAME: api_user
+      SPRING_DATASOURCE_PASSWORD: apipassword
+      # Hibernate configuration to automatically update DB schema based on entities
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Ensure Spring uses the correct database platform dialect
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
+
+# Define the named volume for MySQL data persistence
+volumes:
+  mysql_data:
+
