@@ -1,10 +1,11 @@
 services:
+  # Service 1: RabbitMQ Message Broker
   rabbitmq:
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
     ports:
-      - "5672:5672"   # Port for application connection
-      - "15672:15672" # Port for the management UI
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
@@ -14,42 +15,76 @@ services:
       timeout: 10s
       retries: 5
 
+  # Service 2: MySQL Database
   db:
     image: mysql:8.0
-    hostname: mysql              # Service name for internal Docker network communication
+    hostname: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword      # Password for the administrative 'root' user
-      MYSQL_DATABASE: test_management_db # Name of the database to create automatically
-      MYSQL_USER: api_user             # Username for your Spring Boot application
-      MYSQL_PASSWORD: apipassword        # Password for your Spring Boot application user
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: test_management_db
+      MYSQL_USER: api_user
+      MYSQL_PASSWORD: apipassword
     ports:
-      - "3306:3306"                # Map container's MySQL port to your host machine's port
+      - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql  # Persist database data using a named volume
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "$${MYSQL_USER}", "-p$${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # Service 3: Test Management API
   api:
-    build: ./test-management-api  # Specifies the directory containing the Dockerfile for the API
+    build: ./test-management-api
     ports:
-      - "8080:8080"              # Map container's port 8080 to your host machine's port 8080
-    depends_on:                  # Define startup dependencies
+      - "8080:8080"
+    depends_on:
       rabbitmq:
-        condition: service_healthy # Wait for RabbitMQ to be fully ready
+        condition: service_healthy
       db:
-        condition: service_started # Wait for the MySQL container to start (basic check)
-    volumes:                     # Mount local code for live reload (development only)
-      - ./test-management-api/src:/app/src
-      - ./test-management-api/target:/app/target
-    environment:                 # Pass database connection details as environment variables
-      # Database connection using the service name 'db' as hostname
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/test_management_db
-      SPRING_DATASOURCE_USERNAME: api_user
-      SPRING_DATASOURCE_PASSWORD: apipassword
-      # Hibernate configuration to automatically update DB schema based on entities
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      # Ensure Spring uses the correct database platform dialect
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
+        condition: service_healthy
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=password
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/test_management_db
+      - SPRING_DATASOURCE_USERNAME=api_user
+      - SPRING_DATASOURCE_PASSWORD=apipassword
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
 
-# Define the named volume for MySQL data persistence
+  # Service 4: Test Runner Worker
+  worker:
+    build: ./test-runner-worker
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=password
+      - rabbitmq.queue.name=test_run_jobs_queue
+      - API_BASE_URL=http://api:8080
+      - SELENIUM_HUB_URL=http://selenium:4444
+    depends_on:
+      api:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      selenium:
+        condition: service_started
+    dns:
+      - 8.8.8.8
+
+  # Service 5: Selenium Standalone Chrome Browser
+  selenium:
+    image: selenium/standalone-chrome:latest
+    hostname: selenium
+    ports:
+      - "4444:4444" # Selenium Grid port
+      # --- THIS IS THE NEW LINE ---
+      - "7900:7900" # VNC port for screen sharing
+    shm_size: 2g
+
 volumes:
   mysql_data:
-
