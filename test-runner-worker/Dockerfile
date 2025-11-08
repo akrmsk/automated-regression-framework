@@ -9,12 +9,16 @@ RUN mvn dependency:go-offline
 
 # Copy the source code and build the project
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package spring-boot:repackage -DskipTests
 
 # Stage 2: Create the final, small image
 # This stage uses a lightweight JRE (Java Runtime) image
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
+# --- FIX: Force DNS resolution for internet access ---
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 
 # Copy the built .jar file from the 'builder' stage
 COPY --from=builder /app/target/*.jar app.jar

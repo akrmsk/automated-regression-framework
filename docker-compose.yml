@@ -1,11 +1,10 @@
 services:
-  # Service 1: RabbitMQ Message Broker
   rabbitmq:
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
     ports:
-      - "5672:5672"   # AMQP port
-      - "15672:15672" # Management UI
+      - "5672:5672"   # Port for application connection
+      - "15672:15672" # Port for the management UI
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
@@ -15,7 +14,6 @@ services:
       timeout: 10s
       retries: 5
 
-  # Service 2: MySQL Database
   db:
     image: mysql:8.0
     hostname: mysql
@@ -25,16 +23,17 @@ services:
       MYSQL_USER: api_user
       MYSQL_PASSWORD: apipassword
     ports:
+      # NOTE: If port 3306 is blocked on your machine, change this to "3307:3306"
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "$${MYSQL_USER}", "-p$${MYSQL_PASSWORD}"]
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-prootpassword"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 5s
 
-  # Service 3: Test Management API
   api:
     build: ./test-management-api
     ports:
@@ -45,46 +44,61 @@ services:
       db:
         condition: service_healthy
     environment:
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_USERNAME=user
-      - SPRING_RABBITMQ_PASSWORD=password
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/test_management_db
       - SPRING_DATASOURCE_USERNAME=api_user
       - SPRING_DATASOURCE_PASSWORD=apipassword
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      # --- FIX: Add credentials to match RabbitMQ ---
+      - SPRING_RABBITMQ_USERNAME=user
+      - SPRING_RABBITMQ_PASSWORD=password
 
-  # Service 4: Test Runner Worker
+  # --- NEW: Selenium Grid Service ---
+  selenium:
+    image: selenium/standalone-chrome:latest
+    hostname: selenium
+    shm_size: 2g # Use 2GB of shared memory for stability
+    environment:
+      # --- NEW: Allow more concurrent sessions ---
+      - SE_NODE_MAX_SESSIONS=5
+    ports:
+      # Port for the Selenium Grid
+      - "4444:4444"
+      # --- Port for VNC so you can *watch* the browser ---
+      - "7900:7900"
+
   worker:
     build: ./test-runner-worker
     ports:
       - "8081:8081"
+    # --- NEW: Volume for sharing reports/screenshots ---
+    volumes:
+      # Maps the local 'reports' folder to '/app/reports' inside the container
+      - ./reports:/app/reports
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
+      # --- FIX: Add credentials to match RabbitMQ ---
       - SPRING_RABBITMQ_USERNAME=user
       - SPRING_RABBITMQ_PASSWORD=password
-      - rabbitmq.queue.name=test_run_jobs_queue
+      # This is the internal Docker DNS name for the API
       - API_BASE_URL=http://api:8080
+      # --- NEW: This tells the worker where to find Selenium ---
       - SELENIUM_HUB_URL=http://selenium:4444
+
+    # --- FIX: for 'UnknownHostException' (internet access) ---
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
     depends_on:
       api:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+      # --- NEW: Make the worker wait for Selenium ---
       selenium:
         condition: service_started
-    dns:
-      - 8.8.8.8
-
-  # Service 5: Selenium Standalone Chrome Browser
-  selenium:
-    image: selenium/standalone-chrome:latest
-    hostname: selenium
-    ports:
-      - "4444:4444" # Selenium Grid port
-      # --- THIS IS THE NEW LINE ---
-      - "7900:7900" # VNC port for screen sharing
-    shm_size: 2g
 
 volumes:
   mysql_data:

@@ -13,4 +13,5 @@ public class TestRunUpdateDto {
     private String errorMessage;
     private String errorDetails;
     private Integer failedTestCount;
+    private String screenshotPath;
 }

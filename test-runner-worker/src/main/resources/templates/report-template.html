@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Test Run Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .report-container { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        .status-COMPLETED { color: green; font-weight: bold; }
+        .status-FAILED { color: red; font-weight: bold; }
+        .screenshot { max-width: 100%; border: 1px solid #ddd; margin-top: 20px; }
+        .section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .test-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <h1>Test Run Report</h1>
+
+        <!-- Test Summary Section -->
+        <div class="section">
+            <h2>Test Summary</h2>
+            <table>
+                <tr>
+                    <th>Status</th>
+                    <td><span th:text="${status}" th:class="'status-' + ${status}"></span></td>
+                </tr>
+                <tr>
+                    <th>Test Type</th>
+                    <td th:text="${testType}">Unknown</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td th:text="${testDescription}">No description available</td>
+                </tr>
+                <tr>
+                    <th>Failed Tests</th>
+                    <td th:text="${failedTestCount}">0</td>
+                </tr>
+                <tr th:if="${errorMessage}">
+                    <th>Error Message</th>
+                    <td th:text="${errorMessage}">None</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Test Details Section -->
+        <div class="section">
+            <h2>Test Details</h2>
+            <div class="test-details">
+                <p><strong>URL Tested:</strong> <span th:text="${testUrl}">Unknown URL</span></p>
+                <p><strong>Parameters:</strong> <span th:text="${testParameters}">None</span></p>
+                <p><strong>Start Time:</strong> <span th:text="${startTime}">Unknown</span></p>
+                <p><strong>End Time:</strong> <span th:text="${endTime}">Unknown</span></p>
+                <p><strong>Duration:</strong> <span th:text="${formattedDuration}">Unknown</span></p>
+            </div>
+        </div>
+
+        <!-- Failure Screenshot Section (if available) -->
+        <div class="section" th:if="${screenshotPath}">
+            <h2>Failure Screenshot</h2>
+            <img th:src="${screenshotPath}" alt="Failure Screenshot" class="screenshot"/>
+        </div>
+    </div>
+</body>
+</html>

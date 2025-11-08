@@ -39,4 +39,6 @@ public class TestRun {
 
     @JsonProperty("failedTestCount")
     private Integer failedTestCount;
+
+    private String screenshotPath;
 }

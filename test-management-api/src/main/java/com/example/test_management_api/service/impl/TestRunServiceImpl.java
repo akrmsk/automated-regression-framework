@@ -57,6 +57,7 @@ public class TestRunServiceImpl implements TestRunService {
         existingTestRun.setErrorMessage(updateDto.getErrorMessage());
         existingTestRun.setErrorDetails(updateDto.getErrorDetails());
         existingTestRun.setFailedTestCount(updateDto.getFailedTestCount());
+        existingTestRun.setScreenshotPath(updateDto.getScreenshotPath());
 
         LOGGER.info("Before saving: FailedTestCount = {}", existingTestRun.getFailedTestCount());
 

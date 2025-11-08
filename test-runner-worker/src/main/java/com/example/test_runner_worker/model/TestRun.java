@@ -34,4 +34,6 @@ public class TestRun {
     private String errorDetails;
 
     private Integer failedTestCount;
+
+    private String screenshotPath;
 }
