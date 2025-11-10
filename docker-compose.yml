@@ -23,7 +23,6 @@ services:
       MYSQL_USER: api_user
       MYSQL_PASSWORD: apipassword
     ports:
-      # NOTE: If port 3306 is blocked on your machine, change this to "3307:3306"
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
@@ -50,53 +49,39 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
       - SPRING_RABBITMQ_HOST=rabbitmq
-      # --- FIX: Add credentials to match RabbitMQ ---
       - SPRING_RABBITMQ_USERNAME=user
       - SPRING_RABBITMQ_PASSWORD=password
 
-  # --- NEW: Selenium Grid Service ---
   selenium:
     image: selenium/standalone-chrome:latest
     hostname: selenium
-    shm_size: 2g # Use 2GB of shared memory for stability
+    shm_size: 2g
     environment:
-      # --- NEW: Allow more concurrent sessions ---
       - SE_NODE_MAX_SESSIONS=5
     ports:
-      # Port for the Selenium Grid
       - "4444:4444"
-      # --- Port for VNC so you can *watch* the browser ---
       - "7900:7900"
 
   worker:
     build: ./test-runner-worker
     ports:
       - "8081:8081"
-    # --- NEW: Volume for sharing reports/screenshots ---
     volumes:
-      # Maps the local 'reports' folder to '/app/reports' inside the container
       - ./reports:/app/reports
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
-      # --- FIX: Add credentials to match RabbitMQ ---
       - SPRING_RABBITMQ_USERNAME=user
       - SPRING_RABBITMQ_PASSWORD=password
-      # This is the internal Docker DNS name for the API
       - API_BASE_URL=http://api:8080
-      # --- NEW: This tells the worker where to find Selenium ---
       - SELENIUM_HUB_URL=http://selenium:4444
-
-    # --- FIX: for 'UnknownHostException' (internet access) ---
     dns:
       - 8.8.8.8
       - 1.1.1.1
-
     depends_on:
       api:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      # --- NEW: Make the worker wait for Selenium ---
       selenium:
         condition: service_started
 

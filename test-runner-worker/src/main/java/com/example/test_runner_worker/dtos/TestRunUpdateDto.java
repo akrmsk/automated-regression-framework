@@ -1,11 +1,9 @@
-package com.example.test_management_api.dtos;
+package com.example.test_runner_worker.dtos;
 
-import com.example.test_management_api.model.enums.TestRunStatus;
+import com.example.test_runner_worker.model.enums.TestRunStatus;
 import lombok.Data;
 
-/**
- * This DTO receives the *result* of a test run from the worker.
- */
+// This DTO is used to send the *final* update back to the API.
 @Data
 public class TestRunUpdateDto {
     private TestRunStatus status;

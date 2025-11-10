@@ -10,6 +10,7 @@ import com.example.test_management_api.service.impl.TestRunServiceImpl;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +21,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api")
 public class TestRunController {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestRunServiceImpl.class);
     private final TestRunService testRunService;
     private final RabbitMQProducer rabbitMQProducer;
+
+    @Autowired
+    public TestRunController(TestRunService testRunService, RabbitMQProducer rabbitMQProducer) {
+        this.testRunService = testRunService;
+        this.rabbitMQProducer = rabbitMQProducer;
+    }
 
     @GetMapping("/runs/{id}")
     public ResponseEntity<TestRun> getTestRunById(@PathVariable UUID id){
@@ -38,11 +44,6 @@ public class TestRunController {
     }
     @PostMapping("/runs")
     public ResponseEntity<TestRun> createTestRun(@RequestBody CreateTestRunRequestDto testRunRequestDto){
-        TestRun testRun=new TestRun();
-        testRun.setId(UUID.randomUUID());
-        testRun.setStatus(TestRunStatus.SCHEDULED);
-        testRun.setStartTime(LocalDateTime.now());
-        testRun.setEnvironment(testRunRequestDto.getEnvironment());
         TestRun savedTestRun= testRunService.createTestRun(testRunRequestDto);
         rabbitMQProducer.sendTestRunJob(savedTestRun);
 

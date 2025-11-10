@@ -1,5 +1,7 @@
 package com.example.test_management_api.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -11,9 +13,6 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 public class RabbitMQConfig {
@@ -27,55 +26,35 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
-    // New properties for the Dead-Letter Queue
-    @Value("${rabbitmq.dlq.name}")
-    private String dlqName;
-
-    @Value("${rabbitmq.dlx.name}")
-    private String dlxName;
-
-    @Value("${rabbitmq.dlq.routing.key}")
-    private String dlqRoutingKey;
-
+    // Define the queue
     @Bean
     public Queue queue() {
-        Map<String, Object> args = new HashMap<>();
-        args.put("x-dead-letter-exchange", dlxName);
-        args.put("x-dead-letter-routing-key", dlqRoutingKey);
-        return new Queue(queueName, true, false, false, args);
+        // We will add DLQ logic here later
+        return new Queue(queueName, true);
     }
 
+    // Define the exchange
     @Bean
     public TopicExchange exchange() {
         return new TopicExchange(exchangeName);
     }
 
+    // Bind the queue to the exchange
     @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(routingKey);
     }
 
-    // Beans for the Dead-Letter Queue
-    @Bean
-    public Queue dlq() {
-        return new Queue(dlqName, true);
-    }
-
-    @Bean
-    public TopicExchange dlx() {
-        return new TopicExchange(dlxName);
-    }
-
-    @Bean
-    public Binding dlqBinding(Queue dlq, TopicExchange dlx) {
-        return BindingBuilder.bind(dlq).to(dlx).with(dlqRoutingKey);
-    }
-
+    // Set up JSON message conversion (for sending Java objects)
     @Bean
     public MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        // This module is critical for sending Java 8+ dates (like LocalDateTime)
+        objectMapper.registerModule(new JavaTimeModule());
+        return new Jackson2JsonMessageConverter(objectMapper);
     }
 
+    // Configure the RabbitTemplate to use our JSON converter
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

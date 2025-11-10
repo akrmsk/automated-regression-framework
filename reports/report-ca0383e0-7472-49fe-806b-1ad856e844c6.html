@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Run Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .report-container { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        .status-COMPLETED { color: green; font-weight: bold; }
+        .status-FAILED { color: red; font-weight: bold; }
+        .screenshot { max-width: 100%; border: 1px solid #ddd; margin-top: 20px; }
+        .section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .test-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <h1>Test Run Report</h1>
+
+        <!-- Test Summary Section -->
+        <div class="section">
+            <h2>Test Summary</h2>
+            <table>
+                <tr>
+                    <th>Status</th>
+                    <td><span class="status-COMPLETED">COMPLETED</span></td>
+                </tr>
+                <tr>
+                    <th>Test Type</th>
+                    <td>UI</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>UI Smoke Test - Verify Google homepage loads and has correct title</td>
+                </tr>
+                <tr>
+                    <th>Failed Tests</th>
+                    <td>0</td>
+                </tr>
+                
+            </table>
+        </div>
+
+        <!-- Test Details Section -->
+        <div class="section">
+            <h2>Test Details</h2>
+            <div class="test-details">
+                <p><strong>URL Tested:</strong> <span>https://www.google.com</span></p>
+                <p><strong>Parameters:</strong> <span>None</span></p>
+                <p><strong>Start Time:</strong> <span>2025-11-08T19:16:44.847641830</span></p>
+                <p><strong>End Time:</strong> <span>2025-11-08T19:17:25.385895672</span></p>
+                <p><strong>Duration:</strong> <span>40.537 seconds</span></p>
+            </div>
+        </div>
+
+        <!-- Failure Screenshot Section (if available) -->
+        
+    </div>
+</body>
+</html>
