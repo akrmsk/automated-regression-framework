@@ -31,7 +31,7 @@ public class TestRun {
     private String environment;
 
     private String tags;
-
+    @Lob
     private String errorMessage;
 
     @Lob

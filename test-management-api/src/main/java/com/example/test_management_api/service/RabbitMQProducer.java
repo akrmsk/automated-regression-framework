@@ -1,16 +1,18 @@
 package com.example.test_management_api.service;
 
 import com.example.test_management_api.model.TestRun;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
+@Slf4j // Creates the 'log' variable
+@RequiredArgsConstructor // Creates a constructor for all 'final' fields
 public class RabbitMQProducer {
 
+    // This is now final, so RequiredArgsConstructor will inject it
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${rabbitmq.exchange.name}")
@@ -19,12 +21,10 @@ public class RabbitMQProducer {
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
-    @Autowired
-    public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
+    // The @Autowired constructor is no longer needed
 
     public void sendTestRunJob(TestRun testRun) {
+        // The 'log' variable will now be found
         log.info("Sending job to RabbitMQ: Run ID {}", testRun.getId());
 
         rabbitTemplate.convertAndSend(

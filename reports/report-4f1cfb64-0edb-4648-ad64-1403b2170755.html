@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Run Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h1 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h2 { color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f9f9f9; color: #666; font-weight: 600; }
+        td { color: #333; }
+        .status-COMPLETED { color: #28a745; font-weight: bold; }
+        .status-FAILED { color: #dc3545; font-weight: bold; }
+        .details-box { background-color: #fdfdfd; border: 1px solid #eee; border-radius: 5px; padding: 20px; margin-top: 15px; }
+        .details-box p { margin: 10px 0; }
+        .details-box strong { color: #555; min-width: 120px; display: inline-block; }
+        .error-message { color: #dc3545; background-color: #fff4f4; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; font-family: "Courier New", Courier, monospace; }
+        .screenshot { max-width: 100%; border: 1px solid #ddd; margin-top: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Test Run Report</h1>
+
+    <h2>Test Summary</h2>
+    <table>
+        <tr>
+            <th>Status</th>
+            <td><span class="status-FAILED">FAILED</span></td>
+        </tr>
+        <tr>
+            <th>Test Type</th>
+            <td>API</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>API Smoke Test - Verify Public APIs endpoint returns 200 status code</td>
+        </tr>
+        <tr>
+            <th>Failed Tests</th>
+            <td>1</td>
+        </tr>
+    </table>
+
+    <h2>Test Details</h2>
+    <div class="details-box">
+        <p><strong>URL Tested:</strong> <span>https://api.publicapis.org/entries</span></p>
+        <p><strong>Parameters:</strong> <span>title=cat</span></p>
+        <p><strong>Start Time:</strong> <span>2025-11-10 20:45:08.700</span></p>
+        <p><strong>End Time:</strong> <span>2025-11-10 20:45:12.794</span></p>
+        <p><strong>Duration:</strong> <span>4.094 seconds</span></p>
+    </div>
+
+    <div>
+        <h2>Error Message</h2>
+        <pre class="error-message">api.publicapis.org: Name does not resolve</pre>
+    </div>
+
+    
+</div>
+</body>
+</html>
