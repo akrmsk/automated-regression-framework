@@ -1,10 +1,19 @@
 services:
+  dashboard-ui:
+    build: ./dashboard-ui
+    ports:
+      - "8081:80"
+    depends_on:
+      - api
+    networks:
+      - test-network
+
   rabbitmq:
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
     ports:
-      - "5672:5672"   # Port for application connection
-      - "15672:15672" # Port for the management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
@@ -13,10 +22,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks: # <-- ADDED networks block to this service
+      - test-network
 
   db:
     image: mysql:8.0
-    hostname: mysql
+    hostname: mysql # Note: hostname is mysql, but service name is 'db'
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: test_management_db
@@ -32,6 +43,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 5s
+    networks: # <-- ADDED networks block to this service
+      - test-network
 
   api:
     build: ./test-management-api
@@ -43,7 +56,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/test_management_db
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/test_management_db # 'db' is correct here (service name)
       - SPRING_DATASOURCE_USERNAME=api_user
       - SPRING_DATASOURCE_PASSWORD=apipassword
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
@@ -51,6 +64,10 @@ services:
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_USERNAME=user
       - SPRING_RABBITMQ_PASSWORD=password
+    volumes: # <-- (FIX 2) ADDED THIS VOLUME BLOCK BACK
+      - ./reports:/app/reports
+    networks:
+      - test-network
 
   selenium:
     image: selenium/standalone-chrome:latest
@@ -61,11 +78,12 @@ services:
     ports:
       - "4444:4444"
       - "7900:7900"
+    networks:
+      - test-network
 
   worker:
     build: ./test-runner-worker
-    ports:
-      - "8081:8081"
+    # (FIX 3) REMOVED 'ports' section. It's not needed.
     volumes:
       - ./reports:/app/reports
     environment:
@@ -74,6 +92,7 @@ services:
       - SPRING_RABBITMQ_PASSWORD=password
       - API_BASE_URL=http://api:8080
       - SELENIUM_HUB_URL=http://selenium:4444
+      - API_PUBLIC_URL=http://localhost:8080 # <-- Make sure your worker uses this for report links
     depends_on:
       api:
         condition: service_started
@@ -81,6 +100,13 @@ services:
         condition: service_healthy
       selenium:
         condition: service_started
+    networks:
+      - test-network
 
 volumes:
   mysql_data:
+
+
+networks:
+  test-network:
+    driver: bridge
