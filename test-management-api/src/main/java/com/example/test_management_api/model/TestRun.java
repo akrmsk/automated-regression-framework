@@ -17,6 +17,7 @@ import java.util.UUID;
 @Data
 public class TestRun {
     @Id
+    @JsonProperty("runId")
     private UUID id;
 
     @Enumerated(EnumType.STRING)

@@ -1,6 +1,7 @@
 package com.example.test_runner_worker.model;
 
 import com.example.test_runner_worker.model.enums.TestRunStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import java.util.UUID;
 // It just represents the job message we receive.
 @Data
 public class TestRun {
+    @JsonProperty("runId")
     private UUID id;
     private TestRunStatus status;
     private LocalDateTime startTime;

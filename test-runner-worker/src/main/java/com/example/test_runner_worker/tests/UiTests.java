@@ -5,11 +5,11 @@ import com.example.test_runner_worker.dtos.TestResult;
 import com.example.test_runner_worker.model.enums.TestRunStatus;
 import com.example.test_runner_worker.service.ReportGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*; // <-- Import By, Keys, WebElement
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions; // <-- Import wait
+import org.openqa.selenium.support.ui.WebDriverWait; // <-- Import wait
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration; // <-- Import Duration
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -41,17 +42,18 @@ public class UiTests {
         }
     }
 
-    @Test(name = "UI Smoke Test", tags = {"ui", "smoke"}, description = "Verify Google homepage title")
-    public TestResult runUiSmokeTest() {
+    @Test(name = "UI Google Search Test", tags = {"ui", "smoke"}, description = "Verify Google search results page title")
+    public TestResult runUiSearchTest() {
         TestResult result = new TestResult();
         WebDriver driver = null;
         String runId = UUID.randomUUID().toString();
+        String searchTerm = "Selenium WebDriver";
 
         // --- Test Metadata ---
         result.setTestType("UI");
         result.setTestUrl("https://www.google.com");
-        result.setTestParameters("None");
-        result.setTestDescription("UI Smoke Test - Verify Google homepage loads and has correct title");
+        result.setTestParameters("Search Term: " + searchTerm);
+        result.setTestDescription("UI Smoke Test - Verify Google search for 'Selenium WebDriver'");
         result.setStartTime(LocalDateTime.now());
         long startTimeMs = System.currentTimeMillis();
 
@@ -60,15 +62,27 @@ public class UiTests {
             log.info("Connecting to Selenium Hub at: {}", seleniumHubUrl);
             driver = new RemoteWebDriver(new URL(seleniumHubUrl), new ChromeOptions());
             log.info("Driver created. Navigating to Google...");
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // 10-second wait
 
             // --- Test Execution ---
             driver.get("https://www.google.com");
+
+            // Find the search box (name='q')
+            WebElement searchBox = wait.until(ExpectedConditions.presenceOfElementLocated(By.name("q")));
+
+            // Type the search term and submit
+            searchBox.sendKeys(searchTerm);
+            searchBox.sendKeys(Keys.ENTER);
+
+            // Wait for the results page title to contain the search term
+            wait.until(ExpectedConditions.titleContains(searchTerm));
+
             String title = driver.getTitle();
             log.info("Page title is: {}", title);
 
             // --- Assertion ---
-            if (!title.contains("Google")) {
-                throw new AssertionError("Page title was '" + title + "', did not contain 'Google'");
+            if (!title.contains(searchTerm)) {
+                throw new AssertionError("Page title was '" + title + "', did not contain '" + searchTerm + "'");
             }
 
             // --- Success Path ---

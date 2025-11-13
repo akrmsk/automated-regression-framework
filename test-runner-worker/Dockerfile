@@ -23,5 +23,4 @@ COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8081
 
 # --- FIX: Reverted to the simple ENTRYPOINT ---
-# The DNS is now correctly handled *only* by the 'dns:' block in docker-compose.yml
 ENTRYPOINT ["java", "-jar", "app.jar"]

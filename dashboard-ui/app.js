@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(data => {
             if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7">No test runs found.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6">No test runs found.</td></tr>';
                 return;
             }
 
@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${run.runId}</td>
                     <td>${run.environment}</td>
                     <td class="status-${run.status.toLowerCase()}">${run.status}</td>
-                    <td>${run.passedTestCount}</td>
                     <td>${run.failedTestCount}</td>
                     <td>${startTime}</td>
                     <td>${endTime}</td>
@@ -42,6 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => {
             console.error("Error fetching test runs:", error);
-            tableBody.innerHTML = `<tr><td colspan="7">Error loading data: ${error.message}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="6">Error loading data: ${error.message}</td></tr>`;
         });
 });
