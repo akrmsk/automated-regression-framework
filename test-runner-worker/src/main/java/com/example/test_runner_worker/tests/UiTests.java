@@ -97,13 +97,14 @@ public class UiTests {
             result.setFailedTestCount(1);
             result.setErrorMessage(t.getMessage());
 
-            // Take screenshot on failure
-            log.info("Attempting to take failure screenshot...");
+        } finally {
+            // --- Cleanup ---
+
+            // --- SCREENSHOT LOGIC IS IN FINALLY ---
+            log.info("Attempting to take screenshot...");
             String screenshotPath = takeScreenshot(driver, runId);
             result.setScreenshotPath(screenshotPath); // Save path for the report
 
-        } finally {
-            // --- Cleanup ---
             if (driver != null) {
                 log.info("Quitting driver...");
                 driver.quit();
@@ -126,7 +127,11 @@ public class UiTests {
             return null;
         }
 
-        String filename = "failure-" + runId + ".png";
+        // --- START FIX ---
+        // Changed "failure-" to "screenshot-"
+        String filename = "screenshot-" + runId + ".png";
+        // --- END FIX ---
+
         // Save screenshots in a sub-directory
         Path destination = Paths.get(reportsDirectory, "screenshots", filename);
 

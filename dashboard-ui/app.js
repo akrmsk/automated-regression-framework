@@ -1,6 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.getElementById("runs-table-body");
 
+    // --- NEW FUNCTION ---
+    // Creates a clickable link if the report URL exists
+    const createReportLink = (run) => {
+        if (run.reportUrl) {
+            // The reportUrl will be "reports/report-....html"
+            // This links to http://localhost:8081/reports/report-....html
+            return `<a href="${run.reportUrl}" target="_blank">${run.runId}</a>`;
+        }
+        return run.runId; // Just return the ID if no report
+    };
+    // --- END NEW FUNCTION ---
+
     // Fetch data from the API.
     // We use localhost:8080 because this script runs in the user's browser,
     // not inside the Docker container.
@@ -27,10 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Format dates to be readable
                 const startTime = new Date(run.startTime).toLocaleString();
                 const endTime = run.endTime ? new Date(run.endTime).toLocaleString() : "N/A";
+                const reportLink = createReportLink(run); // <-- USE NEW FUNCTION
 
                 row.innerHTML = `
-                    <td>${run.runId}</td>
-                    <td>${run.environment}</td>
+                    <td>${reportLink}</td> <td>${run.environment}</td>
                     <td class="status-${run.status.toLowerCase()}">${run.status}</td>
                     <td>${run.failedTestCount}</td>
                     <td>${startTime}</td>

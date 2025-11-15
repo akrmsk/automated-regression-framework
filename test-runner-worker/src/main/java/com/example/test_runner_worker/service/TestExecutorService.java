@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// --- ADD THIS IMPORT ---
+import java.lang.reflect.InvocationTargetException;
+
 @Service
 @Slf4j
 public class TestExecutorService {
@@ -70,6 +73,7 @@ public class TestExecutorService {
                         .append(singleTestResult.getErrorMessage()).append("\n");
             }
             // Save the report URL (we'll just grab the last one for now)
+            // This will now correctly get the URL even if the test failed
             finalReportUrl = singleTestResult.getReportUrl();
         }
 
@@ -99,6 +103,8 @@ public class TestExecutorService {
                 Object testInstance = getTestInstance(testMethod.getDeclaringClass());
 
                 // Run the test
+                // Both ApiTests and UiTests are guaranteed to return a TestResult
+                // and not throw an exception.
                 lastResult = (TestResult) testMethod.invoke(testInstance);
 
                 // If it passed, return immediately
@@ -106,12 +112,24 @@ public class TestExecutorService {
                     log.info("Test '{}' passed on attempt {}", testMethod.getName(), attempt);
                     return lastResult;
                 }
+
+                // --- CATCH BLOCK MODIFIED ---
+                // This logic is now safer. It handles reflection errors, but
+                // assumes the test method itself (runUiSearchTest) will *always*
+                // catch its own errors and return a valid TestResult.
+            } catch (InvocationTargetException e) {
+                log.error("Test method threw an internal exception: {}", e.getTargetException().getMessage());
+                // This should not happen if tests catch their own Throwables, but as a fallback:
+                lastResult = new TestResult();
+                lastResult.setStatus(TestRunStatus.FAILED);
+                lastResult.setErrorMessage("Test invocation failed: " + e.getTargetException().getMessage());
             } catch (Exception e) {
                 log.error("An unexpected error occurred during test execution on attempt {}", attempt, e);
                 lastResult = new TestResult();
                 lastResult.setStatus(TestRunStatus.FAILED);
                 lastResult.setErrorMessage("Exception during test invocation: " + e.getMessage());
             }
+            // --- END MODIFICATION ---
 
             if (attempt < maxRetries) {
                 log.warn("Test '{}' failed on attempt {}. Retrying...", testMethod.getName(), attempt);
@@ -119,7 +137,7 @@ public class TestExecutorService {
         }
 
         log.error("Test '{}' failed after {} attempts.", testMethod.getName(), maxRetries);
-        return lastResult; // Return the last failed result
+        return lastResult; // Return the last failed result (which will have a reportUrl)
     }
 
     /**

@@ -3,6 +3,10 @@ services:
     build: ./dashboard-ui
     ports:
       - "8081:80"
+    # --- ADD THIS VOLUME ---
+    volumes:
+      - ./reports:/usr/share/nginx/html/reports
+    # --- END ADDITION ---
     depends_on:
       - api
     networks:

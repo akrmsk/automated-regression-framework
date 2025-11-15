@@ -90,8 +90,11 @@ public class HtmlReportGenerator implements ReportGenerator {
 
         try (FileWriter writer = new FileWriter(destination.toFile())) {
             writer.write(html);
+            // --- START FIX ---
             log.info("HTML report saved successfully: {}", destination.toAbsolutePath());
-            return destination.toAbsolutePath().toString();
+            // Return the relative path for the dashboard
+            return "reports/" + filename;
+            // --- END FIX ---
         } catch (IOException e) {
             log.error("Could not save HTML report: {}", e.getMessage());
             return null;
