@@ -2,12 +2,10 @@ package com.example.test_runner_worker.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-// --- YOU'LL NEED THESE IMPORTS ---
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-// --- END IMPORTS ---
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -28,7 +26,6 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.listeners.max-concurrent:10}")
     private int maxConcurrentConsumers;
 
-    // --- ADD THESE THREE @Value FIELDS ---
     @Value("${rabbitmq.queue.name}")
     private String queueName;
 
@@ -38,19 +35,16 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
-    // --- ADD THIS BEAN ---
     @Bean
     public Queue queue() {
         return new Queue(queueName, true);
     }
 
-    // --- ADD THIS BEAN ---
     @Bean
     public TopicExchange exchange() {
         return new TopicExchange(exchangeName);
     }
 
-    // --- ADD THIS BEAN ---
     @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(routingKey);

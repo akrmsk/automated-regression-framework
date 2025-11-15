@@ -17,13 +17,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.lang.reflect.InvocationTargetException;
 
-// --- ADD THESE IMPORTS ---
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 import java.util.ArrayList;
-// --- END IMPORTS ---
 
 @Service
 @Slf4j
@@ -33,23 +31,18 @@ public class TestExecutorService {
     private final UiTests uiTests;
     private final int maxRetries;
 
-    // --- ADD EXECUTOR SERVICE ---
     private final ExecutorService executorService;
-    // --- END ADDITION ---
 
     public TestExecutorService(ApiTests apiTests,
                                UiTests uiTests,
                                @Value("${test.max-retries:3}") int maxRetries,
-                               // --- ADD THREAD POOL SIZE INJECTION (OPTIONAL, BUT GOOD PRACTICE) ---
                                @Value("${test.parallel-threads:5}") int parallelThreads) {
         this.apiTests = apiTests;
         this.uiTests = uiTests;
         this.maxRetries = maxRetries;
 
-        // --- INITIALIZE THE THREAD POOL ---
         this.executorService = Executors.newFixedThreadPool(parallelThreads);
         log.info("Initialized TestExecutorService with a thread pool of {}", parallelThreads);
-        // --- END INITIALIZATION ---
     }
 
     /**
@@ -74,7 +67,6 @@ public class TestExecutorService {
             return result;
         }
 
-        // --- START PARALLEL EXECUTION MODIFICATION ---
 
         // 2. Submit each test to the executor service
         List<Future<TestResult>> futures = new ArrayList<>();
@@ -118,7 +110,6 @@ public class TestExecutorService {
                 allErrors.append("[Test Execution Error]: Failed to retrieve result from thread: ").append(e.getMessage()).append("\n");
             }
         }
-        // --- END PARALLEL EXECUTION MODIFICATION ---
 
         // 4. Set the final aggregated result
         finalResult.setFailedTestCount(failureCount);

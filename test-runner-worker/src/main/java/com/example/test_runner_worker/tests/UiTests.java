@@ -4,9 +4,7 @@ import com.example.test_runner_worker.annotations.Test;
 import com.example.test_runner_worker.dtos.TestResult;
 import com.example.test_runner_worker.model.enums.TestRunStatus;
 import com.example.test_runner_worker.service.ReportGenerator;
-// --- ADD THIS IMPORT ---
 import com.example.test_runner_worker.service.HtmlReportGenerator;
-// --- END ADD ---
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -100,7 +98,6 @@ public class UiTests {
             result.setEndTime(LocalDateTime.now());
             result.setDurationMs(System.currentTimeMillis() - startTimeMs);
 
-            // --- START OF FIX ---
             String htmlReportPath = null;
 
             // Generate all reports (HTML, CSV)
@@ -115,7 +112,6 @@ public class UiTests {
 
             // After the loop, explicitly set the URL to the HTML path
             result.setReportUrl(htmlReportPath);
-            // --- END OF FIX ---
         }
 
         return result;

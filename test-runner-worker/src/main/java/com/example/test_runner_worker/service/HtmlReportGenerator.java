@@ -46,7 +46,6 @@ public class HtmlReportGenerator implements ReportGenerator {
     public String generateReport(TestResult testResult, String runId) {
         Context context = new Context();
 
-        // --- Pass all TestResult data to the template ---
         context.setVariable("status", testResult.getStatus().toString());
         context.setVariable("errorMessage", testResult.getErrorMessage());
         context.setVariable("failedTestCount", testResult.getFailedTestCount());
@@ -65,7 +64,6 @@ public class HtmlReportGenerator implements ReportGenerator {
             context.setVariable("formattedDuration", "N/A");
         }
 
-        // --- Embed the screenshot (if it exists) ---
         if (testResult.getScreenshotPath() != null) {
             try {
                 // Read the screenshot file and encode it as Base64
@@ -87,11 +85,9 @@ public class HtmlReportGenerator implements ReportGenerator {
 // Process the template
         String html = templateEngine.process("report-template", context);
 
-// --- START MODIFICATION ---
 // Save the file with a unique name to prevent parallel conflicts
         String uniqueId = java.util.UUID.randomUUID().toString().substring(0, 8);
         String filename = "report-" + runId + "-" + uniqueId + ".html";
-// --- END MODIFICATION ---
 
         Path destination = Paths.get(reportsDirectory, filename);
 

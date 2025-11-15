@@ -110,7 +110,6 @@ class TestRunServiceImplTest {
 
     @Test
     void whenNoFilters_shouldCallRepositoryFindAll() { // Renamed for clarity
-        // --- Arrange ---
         TestRunStatus filterStatus = null; // No status filter
         String filterEnvironment = null;   // No environment filter
 
