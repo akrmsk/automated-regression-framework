@@ -82,19 +82,24 @@ public class HtmlReportGenerator implements ReportGenerator {
         }
 
         // Process the template
+        // ... inside the generateReport method ...
+
+// Process the template
         String html = templateEngine.process("report-template", context);
 
-        // Save the file
-        String filename = "report-" + runId + ".html";
+// --- START MODIFICATION ---
+// Save the file with a unique name to prevent parallel conflicts
+        String uniqueId = java.util.UUID.randomUUID().toString().substring(0, 8);
+        String filename = "report-" + runId + "-" + uniqueId + ".html";
+// --- END MODIFICATION ---
+
         Path destination = Paths.get(reportsDirectory, filename);
 
         try (FileWriter writer = new FileWriter(destination.toFile())) {
             writer.write(html);
-            // --- START FIX ---
             log.info("HTML report saved successfully: {}", destination.toAbsolutePath());
             // Return the relative path for the dashboard
             return "reports/" + filename;
-            // --- END FIX ---
         } catch (IOException e) {
             log.error("Could not save HTML report: {}", e.getMessage());
             return null;

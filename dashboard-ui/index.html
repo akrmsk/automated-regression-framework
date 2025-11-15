@@ -7,21 +7,30 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Test Automation Dashboard</h1>
-<table id="runs-table">
-    <thead>
-    <tr>
-        <th>Run ID</th>
-        <th>Environment</th>
-        <th>Status</th>
-        <th>Failed</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-    </tr>
-    </thead>
-    <tbody id="runs-table-body">
-    </tbody>
-</table>
+
+<div class="container">
+    <h1>Test Automation Dashboard</h1>
+
+    <div class="table-container">
+        <table id="runs-table">
+            <thead>
+            <tr>
+                <th>Run ID</th>
+                <th>Environment</th>
+                <th>Status</th>
+                <th>Failed</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Report</th>
+            </tr>
+            </thead>
+            <tbody id="runs-table-body">
+            <tr><td colspan="7">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>

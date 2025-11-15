@@ -1,6 +1,5 @@
 package com.example.test_management_api.model;
 
-
 import com.example.test_management_api.model.enums.TestRunStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -32,10 +31,10 @@ public class TestRun {
     private String environment;
 
     private String tags;
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String errorDetails;
 
     @JsonProperty("failedTestCount")

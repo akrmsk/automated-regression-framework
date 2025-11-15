@@ -59,10 +59,13 @@ public class ApiTests {
 
         } catch (Throwable t) {
             log.error("API test FAILED: {}", t.getMessage());
+            String errorMessage = "API test FAILED: " + t.getMessage();
+            result.setErrorMessage(errorMessage);
+
+            // --- ADD THIS LINE ---
             result.setStatus(TestRunStatus.FAILED);
-            result.setFailedTestCount(1);
-            result.setErrorMessage(t.getMessage());
-        } finally {
+            // --- END OF FIX ---
+        }finally {
             result.setEndTime(LocalDateTime.now());
             result.setDurationMs(System.currentTimeMillis() - startTimeMs);
             String reportPath = reportGenerator.generateReport(result, runId);
