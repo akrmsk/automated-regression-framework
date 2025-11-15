@@ -4,27 +4,29 @@ import com.example.test_runner_worker.annotations.Test;
 import com.example.test_runner_worker.dtos.TestResult;
 import com.example.test_runner_worker.model.enums.TestRunStatus;
 import com.example.test_runner_worker.service.ReportGenerator;
-import io.restassured.response.Response; // <-- Import RestAssured
+// --- ADD THIS IMPORT ---
+import com.example.test_runner_worker.service.HtmlReportGenerator;
+// --- END ADD ---
+import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate; // <-- Keep this if you use it
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
-import static io.restassured.RestAssured.given; // <-- Import RestAssured static methods
-import static org.hamcrest.Matchers.equalTo; // <-- Import Hamcrest matchers
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
 @Slf4j
 @Service
 public class ApiTests {
 
-    private final ReportGenerator reportGenerator;
+    private final List<ReportGenerator> reportGenerators;
 
-    // We'll use RestAssured here as it's included in the pom.xml
-    // No need for RestTemplate or Selenium for this test
-    public ApiTests(ReportGenerator reportGenerator) {
-        this.reportGenerator = reportGenerator;
+    public ApiTests(List<ReportGenerator> reportGenerators) {
+        this.reportGenerators = reportGenerators;
     }
 
     @Test(name = "API Content Test", tags = {"api", "smoke"}, description = "Verify JSONPlaceholder post content")
@@ -43,7 +45,6 @@ public class ApiTests {
         try {
             log.info("Executing API test for: {}", testUrl);
 
-            // Use RestAssured for a clean API test
             given()
                     .when()
                     .get(testUrl)
@@ -51,7 +52,7 @@ public class ApiTests {
                     .assertThat()
                     .statusCode(200)
                     .and()
-                    .body("userId", equalTo(1)); // Assert that the userId field is 1
+                    .body("userId", equalTo(1));
 
             log.info("API test passed.");
             result.setStatus(TestRunStatus.COMPLETED);
@@ -61,15 +62,29 @@ public class ApiTests {
             log.error("API test FAILED: {}", t.getMessage());
             String errorMessage = "API test FAILED: " + t.getMessage();
             result.setErrorMessage(errorMessage);
-
-            // --- ADD THIS LINE ---
             result.setStatus(TestRunStatus.FAILED);
-            // --- END OF FIX ---
-        }finally {
+            result.setFailedTestCount(1);
+
+        } finally {
             result.setEndTime(LocalDateTime.now());
             result.setDurationMs(System.currentTimeMillis() - startTimeMs);
-            String reportPath = reportGenerator.generateReport(result, runId);
-            result.setReportUrl(reportPath);
+
+            // --- START OF FIX ---
+            String htmlReportPath = null;
+
+            // Generate all reports (HTML, CSV)
+            for (ReportGenerator generator : reportGenerators) {
+                String reportPath = generator.generateReport(result, runId);
+
+                // Check if this is the HTML generator and save its path
+                if (generator instanceof HtmlReportGenerator && reportPath != null) {
+                    htmlReportPath = reportPath;
+                }
+            }
+
+            // After the loop, explicitly set the URL to the HTML path
+            result.setReportUrl(htmlReportPath);
+            // --- END OF FIX ---
         }
         return result;
     }
