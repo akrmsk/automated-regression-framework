@@ -27,14 +27,16 @@ DB_ROOT_PASSWORD=rootpassword
 2. Build and Run the Application
 
 Build all services:
-'''
+```bash
 docker-compose build
-'''
+```
+
 
 Start all services in the background:
-'''
+```bash
 docker-compose up -d
-'''
+```
+
 3. Run Your First Test
 
 Trigger a test run by sending a POST request to the API.
