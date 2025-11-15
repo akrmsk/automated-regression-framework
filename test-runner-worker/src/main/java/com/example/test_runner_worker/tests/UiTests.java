@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption; // <-- Import this
 import java.time.Duration; // <-- Import Duration
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -47,13 +48,16 @@ public class UiTests {
         TestResult result = new TestResult();
         WebDriver driver = null;
         String runId = UUID.randomUUID().toString();
-        String searchTerm = "Selenium WebDriver";
+
+        // Test site that allows automation
+        String testUrl = "https://the-internet.herokuapp.com/";
+        String linkText = "Checkboxes";
 
         // --- Test Metadata ---
         result.setTestType("UI");
-        result.setTestUrl("https://www.google.com");
-        result.setTestParameters("Search Term: " + searchTerm);
-        result.setTestDescription("UI Smoke Test - Verify Google search for 'Selenium WebDriver'");
+        result.setTestUrl(testUrl);
+        result.setTestParameters("Link Text: " + linkText);
+        result.setTestDescription("UI Smoke Test - Verify navigation on the-internet.herokuapp.com");
         result.setStartTime(LocalDateTime.now());
         long startTimeMs = System.currentTimeMillis();
 
@@ -61,28 +65,21 @@ public class UiTests {
             // --- Test Setup ---
             log.info("Connecting to Selenium Hub at: {}", seleniumHubUrl);
             driver = new RemoteWebDriver(new URL(seleniumHubUrl), new ChromeOptions());
-            log.info("Driver created. Navigating to Google...");
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // 10-second wait
+            log.info("Driver created. Navigating to " + testUrl);
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
             // --- Test Execution ---
-            driver.get("https://www.google.com");
+            driver.get(testUrl);
 
-            // Find the search box (name='q')
-            WebElement searchBox = wait.until(ExpectedConditions.presenceOfElementLocated(By.name("q")));
+            WebElement checkboxesLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.linkText(linkText)));
+            checkboxesLink.click();
 
-            // Type the search term and submit
-            searchBox.sendKeys(searchTerm);
-            searchBox.sendKeys(Keys.ENTER);
-
-            // Wait for the results page title to contain the search term
-            wait.until(ExpectedConditions.titleContains(searchTerm));
-
-            String title = driver.getTitle();
-            log.info("Page title is: {}", title);
+            WebElement pageHeading = wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("h3")));
+            String headingText = pageHeading.getText();
 
             // --- Assertion ---
-            if (!title.contains(searchTerm)) {
-                throw new AssertionError("Page title was '" + title + "', did not contain '" + searchTerm + "'");
+            if (!headingText.equals(linkText)) {
+                throw new AssertionError("Page heading was '" + headingText + "', did not equal '" + linkText + "'");
             }
 
             // --- Success Path ---
@@ -94,22 +91,20 @@ public class UiTests {
             log.error("UI test FAILED: {}", t.getMessage());
             String errorMessage = "UI test FAILED: " + t.getMessage();
             result.setErrorMessage(errorMessage);
-
-            // --- ADD THIS LINE ---
             result.setStatus(TestRunStatus.FAILED);
-            // --- END OF FIX ---
+            result.setFailedTestCount(1);
 
-            // Take screenshot on failure
-            result.setScreenshotPath(takeScreenshot(driver,runId));
+            // --- NO SCREENSHOT HERE --- We moved it to 'finally'
+
         } finally {
-            // --- Cleanup ---
-
-            // --- SCREENSHOT LOGIC MOVED HERE ---
+            // --- START OF CHANGE: Screenshot logic moved here ---
+            // This code now runs for BOTH success and failure
             log.info("Attempting to take screenshot...");
             String screenshotPath = takeScreenshot(driver, runId);
             result.setScreenshotPath(screenshotPath); // Save path for the report
-            // --- END OF MOVE ---
+            // --- END OF CHANGE ---
 
+            // --- Cleanup ---
             if (driver != null) {
                 log.info("Quitting driver...");
                 driver.quit();
@@ -129,24 +124,22 @@ public class UiTests {
 
     private String takeScreenshot(WebDriver driver, String runId) {
         if (driver == null) {
+            log.warn("Driver was null, cannot take screenshot.");
             return null;
         }
 
-        // --- FILENAME CHANGED ---
         String filename = "screenshot-" + runId + ".png";
-        // --- END CHANGE ---
-
-        // Save screenshots in a sub-directory
         Path destination = Paths.get(reportsDirectory, "screenshots", filename);
 
         try {
             TakesScreenshot ts = (TakesScreenshot) driver;
             File screenshotFile = ts.getScreenshotAs(OutputType.FILE);
-            Files.copy(screenshotFile.toPath(), destination);
+            // Use REPLACE_EXISTING to prevent errors if file somehow exists
+            Files.copy(screenshotFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
             log.info("Screenshot saved successfully: {}", destination.toAbsolutePath());
             return destination.toAbsolutePath().toString();
 
-        } catch (IOException | ClassCastException e) {
+        } catch (IOException | ClassCastException | WebDriverException e) {
             log.error("Could not save screenshot: {}", e.getMessage());
             return null;
         }

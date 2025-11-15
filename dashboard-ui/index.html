@@ -7,11 +7,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header class="header">
+    <div class="container">
+        <h1>Test Automation Dashboard</h1>
+    </div>
+</header>
 
 <div class="container">
-    <h1>Test Automation Dashboard</h1>
+    <div class="summary-grid" id="summary-grid">
+        <div class="stat-card">
+            <h3>Total Runs</h3>
+            <p id="total-runs">0</p>
+        </div>
+        <div class="stat-card stat-completed">
+            <h3>Completed</h3>
+            <p id="total-completed">0</p>
+        </div>
+        <div class="stat-card stat-failed">
+            <h3>Failed</h3>
+            <p id="total-failed">0</p>
+        </div>
+        <div class="stat-card stat-running">
+            <h3>In Progress</h3>
+            <p id="total-running">0</p>
+        </div>
+    </div>
 
     <div class="table-container">
+        <h2>Run History</h2>
         <table id="runs-table">
             <thead>
             <tr>

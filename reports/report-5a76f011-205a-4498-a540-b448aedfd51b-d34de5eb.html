@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <title>Test Run Report</title>
     <style>
@@ -156,40 +156,34 @@
     <table>
         <tr>
             <th>Status</th>
-            <td><span th:text="${status}" th:class="'status status-' + ${status}"></span></td>
+            <td><span class="status status-COMPLETED">COMPLETED</span></td>
         </tr>
         <tr>
             <th>Test Type</th>
-            <td th:text="${testType}">Unknown</td>
+            <td>UI</td>
         </tr>
         <tr>
             <th>Description</th>
-            <td th:text="${testDescription}">No description</td>
+            <td>UI Smoke Test - Verify navigation on the-internet.herokuapp.com</td>
         </tr>
         <tr>
             <th>Failed Tests</th>
-            <td th:text="${failedTestCount}">0</td>
+            <td>0</td>
         </tr>
     </table>
 
     <h2>Test Details</h2>
     <div class="details-box">
-        <p><strong>URL Tested:</strong> <span th:text="${testUrl}">N/A</span></p>
-        <p><strong>Parameters:</strong> <span th:text="${testParameters}">None</span></p>
-        <p><strong>Start Time:</strong> <span th:text="${#temporals.format(startTime, 'yyyy-MM-dd HH:mm:ss.SSS')}">N/A</span></p>
-        <p><strong>End Time:</strong> <span th:text="${#temporals.format(endTime, 'yyyy-MM-dd HH:mm:ss.SSS')}">N/A</span></p>
-        <p><strong>Duration:</strong> <span th:text="${formattedDuration}">N/A</span></p>
+        <p><strong>URL Tested:</strong> <span>https://the-internet.herokuapp.com/</span></p>
+        <p><strong>Parameters:</strong> <span>Link Text: Checkboxes</span></p>
+        <p><strong>Start Time:</strong> <span>2025-11-15 08:50:02.246</span></p>
+        <p><strong>End Time:</strong> <span>2025-11-15 08:50:30.409</span></p>
+        <p><strong>Duration:</strong> <span>28.163 seconds</span></p>
     </div>
 
-    <div th:if="${errorMessage}">
-        <h2>Error Message</h2>
-        <pre class="error-message" th:text="${errorMessage}">None</pre>
-    </div>
+    
 
-    <div th:if="${screenshotBase64}">
-        <h2>Screenshot</h2>
-        <img th:src="${screenshotBase64}" alt="Screenshot" class="screenshot"/>
-    </div>
+    
 </div>
 </body>
 </html>
