@@ -27,14 +27,14 @@ DB_ROOT_PASSWORD=rootpassword
 2. Build and Run the Application
 
 Build all services:
-
+'''
 docker-compose build
-
+'''
 
 Start all services in the background:
-
+'''
 docker-compose up -d
-
+'''
 3. Run Your First Test
 
 Trigger a test run by sending a POST request to the API.
@@ -42,9 +42,9 @@ Trigger a test run by sending a POST request to the API.
 4. View the Results
 
 Open the Test Automation Dashboard in your browser to see the results in real-time:
-
+'''
 http://localhost:8081
-
+'''
 # Automated Regression Test Suite Framework
 
 ## 1. Project Overview
