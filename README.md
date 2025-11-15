@@ -12,7 +12,7 @@ Docker Compose
 
 This project uses an .env file to manage secret passwords.
 Create a file named .env in the root of the project with the following content:
-
+```env
 # RabbitMQ Credentials
 MQ_USER=user
 MQ_PASSWORD=password
@@ -21,6 +21,8 @@ MQ_PASSWORD=password
 DB_USER=api_user
 DB_PASSWORD=apipassword
 DB_ROOT_PASSWORD=rootpassword
+```
+
 
 2. Build and Run the Application
 
