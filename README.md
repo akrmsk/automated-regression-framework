@@ -1,4 +1,4 @@
-Getting Started
+# Getting Started
 
 This project is fully containerized with Docker. To run the entire framework, follow these steps.
 
@@ -13,13 +13,13 @@ This project uses an .env file to manage secret passwords. Create a file named .
 # .env file
 
 # RabbitMQ Credentials
-MQ_USER=user
+MQ_USER=user \n
 MQ_PASSWORD=password
 
 # MySQL Credentials
-DB_USER=api_user
-DB_PASSWORD=apipassword
-DB_ROOT_PASSWORD=rootpassword
+DB_USER=api_user  \n
+DB_PASSWORD=apipassword  \n
+DB_ROOT_PASSWORD=rootpassword 
 
 
 2. Build and Run the Application
