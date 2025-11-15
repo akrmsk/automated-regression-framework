@@ -1,3 +1,52 @@
+Getting Started
+
+This project is fully containerized with Docker. To run the entire framework, follow these steps.
+
+Prerequisites:
+Docker
+Docker Compose
+
+1. Create the Environment File
+
+This project uses an .env file to manage secret passwords. Create a file named .env in the root of the project.
+
+# .env file
+
+# RabbitMQ Credentials
+MQ_USER=user
+MQ_PASSWORD=password
+
+# MySQL Credentials
+DB_USER=api_user
+DB_PASSWORD=apipassword
+DB_ROOT_PASSWORD=rootpassword
+
+
+2. Build and Run the Application
+
+In your terminal, build all the services:
+
+docker-compose build
+
+Then, start all services in the background:
+
+docker-compose up -d
+
+3. Run Your First Test
+
+Trigger a test run by sending a POST request to the API:
+
+Trigger a UI Test
+
+Trigger an API Test
+
+4. View the Results
+
+Open the Test Automation Dashboard in your browser to see the results in real-time:
+
+URL: http://localhost:8081
+
+
 # Automated Regression Test Suite Framework
 
 ## 1. Project Overview
