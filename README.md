@@ -49,6 +49,37 @@ http://localhost:8081
 '''
 # Automated Regression Test Suite Framework
 
+## 🛠️ Tech Stack
+
+### **Core Framework & Language**
+* **Java 21**: Core programming language.
+* **Spring Boot 3.2.5**: Application framework for the API and Worker modules.
+* **Maven**: Dependency management and build tool.
+
+### **Testing Libraries**
+* **Selenium WebDriver**: For Web UI automation (Browser testing).
+* **REST Assured**: For API validation and testing.
+* **JUnit 5**: Testing framework for unit and integration tests.
+
+### **Messaging & Database**
+* **RabbitMQ**: Message broker for asynchronous job processing and decoupling API from Worker.
+* **MySQL 8.0**: Relational database for persisting test runs and results.
+* **Spring Data JPA (Hibernate)**: ORM for database interactions.
+
+### **Frontend (Dashboard)**
+* **HTML5 / CSS3**: Structure and styling for the dashboard.
+* **Vanilla JavaScript**: Logic for fetching and displaying real-time run data.
+* **Nginx**: Web server for hosting the static dashboard files.
+
+### **DevOps & Infrastructure**
+* **Docker**: Containerization of all services (API, Worker, DB, Queue, Dashboard).
+* **Docker Compose**: Orchestration for running the multi-container environment locally.
+* **Selenium Grid (Standalone Chrome)**: For executing browser tests in a containerized environment.
+
+### **Reporting**
+* **Thymeleaf**: Template engine for generating custom HTML test reports.
+* **Allure Report**: (Integrated) Advanced reporting with detailed logs and trend analysis.
+
 ## 1. Project Overview
 **Project Name:** Automated Regression Test Suite Framework
 
